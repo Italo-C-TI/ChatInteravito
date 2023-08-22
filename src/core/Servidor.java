@@ -8,16 +8,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Servidor {
-	private ServerSocket serverSocket;
+	private ServerSocket server;
 	private Socket conexao;
 	private Map<String, ObjectOutputStream> mapOnlines = new HashMap<String, ObjectOutputStream>();
 	
 	public Servidor() {
 	    try {
-	    	serverSocket = new ServerSocket(5555);
+	    	server = new ServerSocket(5555);
 	        System.out.println("ServidorSocket rodando na porta 5555");
 	        while (true) {
-	             conexao = serverSocket.accept();
+	        	conexao = server.accept();
 	        }
 	    } catch (IOException e) {
 	
