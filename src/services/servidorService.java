@@ -70,10 +70,20 @@ public class servidorService {
 			
 		}
 	}
-	private void connect(ChatMessage message, ObjectOutputStream output) {
-		
+	private boolean connect(ChatMessage message, ObjectOutputStream output) {
+		if(mapOnlines.size() == 0) {
+			message.setText("YES");
+			sendAll(message, output);
+			return true;
+		}
+		message.setText("NO");
+		return false;
 	}
 	private void sendAll(ChatMessage message, ObjectOutputStream output) {
+//		for(Map.Entry<String, ObjectOutputStream>kv:map) {
+//			
+//		}
+		
 		try {
 			output.writeObject(message);
 		} catch (Exception e) {

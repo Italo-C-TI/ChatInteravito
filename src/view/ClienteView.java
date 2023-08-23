@@ -17,6 +17,8 @@ import services.ClienteService;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
+
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -30,24 +32,9 @@ public class ClienteView extends JFrame {
 	
 	private JTable table;
 	private JTextField textNome;
+	private JTextArea textMensagensRecebidas;
+	private JTextArea textEnviarMensagem;
 
-
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					ClienteView frame = new ClienteView();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
-	/**
-	 * Create the frame.
-	 */
 	public ClienteView() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 634, 480);
@@ -87,6 +74,7 @@ public class ClienteView extends JFrame {
 		btnConectar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String nome= textNome.getText();
+				service.send(message);
 				if(!nome.isEmpty()) {
 					message = new ChatMessage();
 					message.setAction(Action.CONNECT);
@@ -98,7 +86,9 @@ public class ClienteView extends JFrame {
 						
 						new Thread(new ListenerSocket(socket)).start(); 
 					}
+					textMensagensRecebidas.append("Usuario " + message.getName() + " Se conectou\n");
 					service.send(message);
+					
 				}
 			}
 		});
@@ -113,17 +103,21 @@ public class ClienteView extends JFrame {
 		btnSair.setBounds(302, 54, 117, 29);
 		getContentPane().add(btnSair);
 		
-		JTextArea textMensagensRecebidas = new JTextArea();
+		textMensagensRecebidas = new JTextArea();
 		textMensagensRecebidas.setBounds(20, 107, 351, 215);
 		getContentPane().add(textMensagensRecebidas);
 		
-		JTextArea textEnviarMensagem = new JTextArea();
+		textEnviarMensagem = new JTextArea();
 		textEnviarMensagem.setBounds(22, 334, 349, 57);
 		getContentPane().add(textEnviarMensagem);
 		
 		JButton btnEnviarMensagem = new JButton("Enviar");
 		btnEnviarMensagem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				String texto= textEnviarMensagem.getText();
+				String nome= textNome.getText();
+				textMensagensRecebidas.append(nome + ": " + texto);
+
 			}
 		});
 		btnEnviarMensagem.setBounds(254, 403, 117, 29);
@@ -146,6 +140,8 @@ public class ClienteView extends JFrame {
 		public void run() {
 			ChatMessage message = null;
 			try {
+				service = new ClienteService();
+				socket = service.connect();
 				
 				while ((message = (ChatMessage)input.readObject()) != null) {
 					Action action = message.getAction();
@@ -165,7 +161,12 @@ public class ClienteView extends JFrame {
 		
 	}
 	private void connect (ChatMessage message) {
-		
+		if(message.getText().equals("NO")) {
+			textNome.setText("");
+			JOptionPane.showMessageDialog(this, "Conexao nao realizada");
+		}
+		textMensagensRecebidas.append(message.getName()+ "\n");
+
 	}
 	private void disconnect (ChatMessage message) {
 		

@@ -2,6 +2,7 @@ package services;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -13,7 +14,8 @@ public class ClienteService {
 	
 	public Socket connect() {
 		try {
-			this.conexao = new Socket("127.0.0.1", 5555);
+			this.conexao = new Socket("localhost", 5555);
+			this.output = new ObjectOutputStream(conexao.getOutputStream());
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -24,6 +26,7 @@ public class ClienteService {
 	
 	public void send(ChatMessage message) {
 		try {
+			System.out.println(message.getName());
 			output.writeObject(message);
 		} catch (IOException e) {
 			e.printStackTrace();
