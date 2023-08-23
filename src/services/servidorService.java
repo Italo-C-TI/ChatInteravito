@@ -37,8 +37,11 @@ public class servidorService {
 		
 		public ListenerSocket(Socket conexao) {
 			try {
+				System.out.println("entrei");
 				this.output = new ObjectOutputStream(conexao.getOutputStream());
 				this.input = new ObjectInputStream(conexao.getInputStream());
+				System.out.println(input);
+				System.out.println(output);
 			} catch (Exception e) {
 		        System.out.println("Exception: " + e);
 			}
@@ -55,7 +58,8 @@ public class servidorService {
 					Action action = message.getAction();
 					
 					if(action.equals(action.CONNECT)){
-						
+						System.out.println("conectou");
+
 					}else if(action.equals(action.DISCONNECT)){
 						
 					}else if(action.equals(action.SEND_ALL)){

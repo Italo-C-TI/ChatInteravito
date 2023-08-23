@@ -74,7 +74,6 @@ public class ClienteView extends JFrame {
 		btnConectar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String nome= textNome.getText();
-				service.send(message);
 				if(!nome.isEmpty()) {
 					message = new ChatMessage();
 					message.setAction(Action.CONNECT);
