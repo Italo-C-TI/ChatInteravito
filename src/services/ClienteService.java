@@ -2,7 +2,6 @@ package services;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -22,6 +21,19 @@ public class ClienteService {
 			e.printStackTrace();
 		}
 		return this.conexao;
+	}
+	
+	public void disconnect() {
+		try {
+			if(!this.conexao.isClosed()) {
+				this.conexao.close();
+				System.out.println("Desconectado da rede com sucesso");
+				return;
+			}
+			System.out.println("Cliente já encerrou a conexão com a rede");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void send(ChatMessage message) {

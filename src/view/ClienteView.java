@@ -97,6 +97,11 @@ public class ClienteView extends JFrame {
 		JButton btnSair = new JButton("Sair");
 		btnSair.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+		        ChatMessage message = new ChatMessage();
+		        message.setName(message.getName());
+		        message.setAction(Action.DISCONNECT);
+		        service.send(message);
+				service.disconnect();
 			}
 		});
 		btnSair.setBounds(302, 54, 117, 29);
@@ -145,11 +150,11 @@ public class ClienteView extends JFrame {
 				while ((message = (ChatMessage)input.readObject()) != null) {
 					Action action = message.getAction();
 					
-					if(action.equals(action.CONNECT)){
+					if(action.equals(Action.CONNECT)){
 						connect(message);
-					}else if(action.equals(action.DISCONNECT)){
+					}else if(action.equals(Action.DISCONNECT)){
 						disconnect(message);						
-					}else if(action.equals(action.USER_ONLINE)){
+					}else if(action.equals(Action.USER_ONLINE)){
 						refreshOnlines(message);
 					}
 				}

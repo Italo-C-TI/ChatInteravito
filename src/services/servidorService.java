@@ -37,7 +37,6 @@ public class servidorService {
 		
 		public ListenerSocket(Socket conexao) {
 			try {
-				System.out.println("entrei");
 				this.output = new ObjectOutputStream(conexao.getOutputStream());
 				this.input = new ObjectInputStream(conexao.getInputStream());
 				System.out.println(input);
@@ -57,14 +56,14 @@ public class servidorService {
 				while ((message = (ChatMessage)input.readObject()) != null) {
 					Action action = message.getAction();
 					
-					if(action.equals(action.CONNECT)){
-						System.out.println("conectou");
-
-					}else if(action.equals(action.DISCONNECT)){
+					if(action.equals(Action.CONNECT)){
+						System.out.println("Um novo usuario se conectou");
+						connect(message, output);
+					}else if(action.equals(Action.DISCONNECT)){
 						
-					}else if(action.equals(action.SEND_ALL)){
+					}else if(action.equals(Action.SEND_ALL)){
 						
-					}else if(action.equals(action.USER_ONLINE)){
+					}else if(action.equals(Action.USER_ONLINE)){
 						
 					}
 				}
@@ -80,8 +79,15 @@ public class servidorService {
 			sendAll(message, output);
 			return true;
 		}
-		message.setText("NO");
-		return false;
+		if(mapOnlines.containsKey(message.getName())) {
+			message.setText("NO");
+			sendAll(message, output);
+	        return false;
+		} else {
+	        message.setText("YES");
+	        sendAll(message, output);
+	        return true;
+		}
 	}
 	private void sendAll(ChatMessage message, ObjectOutputStream output) {
 //		for(Map.Entry<String, ObjectOutputStream>kv:map) {
