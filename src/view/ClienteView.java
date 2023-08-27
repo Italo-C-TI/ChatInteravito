@@ -121,6 +121,7 @@ public class ClienteView extends JFrame {
 				String texto= textEnviarMensagem.getText();
 				String nome= textNome.getText();
 				textMensagensRecebidas.append(nome + ": " + texto);
+				textEnviarMensagem.setText("");
 
 			}
 		});
