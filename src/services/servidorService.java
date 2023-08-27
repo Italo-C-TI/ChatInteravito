@@ -99,7 +99,9 @@ public class servidorService {
 	
 	private void disconnect(ChatMessage message, ObjectOutputStream output) {
 		
+		mapOnlines.remove(message.getName());
 		
+		sendAll(message, output);
 	}
 	
 	private void sendAll(ChatMessage message, ObjectOutputStream output) {
