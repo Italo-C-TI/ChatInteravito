@@ -57,22 +57,29 @@ public class servidorService {
 					Action action = message.getAction();
 					
 					if(action.equals(Action.CONNECT)){
+						connect(message, output); 
+						mapOnlines.put(message.getName(), output);
+						
 						System.out.println("Um novo usuario se conectou");
-						connect(message, output);
+						
 					}else if(action.equals(Action.DISCONNECT)){
+						disconnect(message,output);
 						
 					}else if(action.equals(Action.SEND_ALL)){
+						sendAll(message, output);
 						
 					}else if(action.equals(Action.USER_ONLINE)){
 						
 					}
 				}
 			} catch (Exception e) {
+				disconnect(message,output);
 		        System.out.println("Exception: " + e);
 			}
 			
 		}
 	}
+	
 	private boolean connect(ChatMessage message, ObjectOutputStream output) {
 		if(mapOnlines.size() == 0) {
 			message.setText("YES");
@@ -89,16 +96,29 @@ public class servidorService {
 	        return true;
 		}
 	}
-	private void sendAll(ChatMessage message, ObjectOutputStream output) {
-//		for(Map.Entry<String, ObjectOutputStream>kv:map) {
-//			
-//		}
+	
+	private void disconnect(ChatMessage message, ObjectOutputStream output) {
 		
-		try {
+		
+	}
+	
+	private void sendAll(ChatMessage message, ObjectOutputStream output) {
+		for(Map.Entry<String, ObjectOutputStream>kv:mapOnlines.entrySet()) {
+			if (!kv.getKey().equals(message.getName())) {
+				try {
+					kv.getValue().writeObject(message);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		/*try {
 			output.writeObject(message);
 		} catch (Exception e) {
 	        System.out.println("Exception: " + e);
-		}
+		}*/
 
 	}
 }

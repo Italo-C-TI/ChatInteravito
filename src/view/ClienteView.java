@@ -34,6 +34,7 @@ public class ClienteView extends JFrame {
 	private JTextField textNome;
 	private JTextArea textMensagensRecebidas;
 	private JTextArea textEnviarMensagem;
+	private JButton btnConectar;
 
 	public ClienteView() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -48,7 +49,7 @@ public class ClienteView extends JFrame {
 		
 		JPanel panel = new JPanel();
 		panel.setBorder(new TitledBorder(null, "Onlines", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel.setBounds(431, 59, 175, 361);
+		panel.setBounds(429, 39, 179, 391);
 		getContentPane().add(panel);
 		panel.setLayout(null);
 		
@@ -57,7 +58,7 @@ public class ClienteView extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		btnAtualizarOnlines.setBounds(28, 326, 117, 29);
+		btnAtualizarOnlines.setBounds(28, 351, 117, 29);
 		panel.add(btnAtualizarOnlines);
 		
 		
@@ -66,11 +67,11 @@ public class ClienteView extends JFrame {
 		panel.add(listOnlines);
 		
 		textNome = new JTextField();
-		textNome.setBounds(22, 54, 130, 26);
+		textNome.setBounds(20, 54, 130, 26);
 		getContentPane().add(textNome);
 		textNome.setColumns(10);
 		
-		JButton btnConectar = new JButton("Conectar");
+		btnConectar = new JButton("Conectar");
 		btnConectar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String nome= textNome.getText();
@@ -85,34 +86,33 @@ public class ClienteView extends JFrame {
 						
 						new Thread(new ListenerSocket(socket)).start(); 
 					}
-					textMensagensRecebidas.append("Usuario " + message.getName() + " Se conectou\n");
 					service.send(message);
-					
+					textMensagensRecebidas.append("Usuario " + message.getName() + " se conectou\n");
 				}
 			}
 		});
-		btnConectar.setBounds(173, 53, 117, 29);
+		btnConectar.setBounds(239, 53, 94, 27);
 		getContentPane().add(btnConectar);
 		
 		JButton btnSair = new JButton("Sair");
 		btnSair.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-		        ChatMessage message = new ChatMessage();
+				ChatMessage message = new ChatMessage();
 		        message.setName(message.getName());
 		        message.setAction(Action.DISCONNECT);
+		        service.disconnect();
 		        service.send(message);
-				service.disconnect();
 			}
 		});
-		btnSair.setBounds(302, 54, 117, 29);
+		btnSair.setBounds(340, 52, 79, 28);
 		getContentPane().add(btnSair);
 		
 		textMensagensRecebidas = new JTextArea();
-		textMensagensRecebidas.setBounds(20, 107, 351, 215);
+		textMensagensRecebidas.setBounds(20, 91, 399, 231);
 		getContentPane().add(textMensagensRecebidas);
 		
 		textEnviarMensagem = new JTextArea();
-		textEnviarMensagem.setBounds(22, 334, 349, 57);
+		textEnviarMensagem.setBounds(22, 334, 397, 57);
 		getContentPane().add(textEnviarMensagem);
 		
 		JButton btnEnviarMensagem = new JButton("Enviar");
@@ -120,13 +120,17 @@ public class ClienteView extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				String texto= textEnviarMensagem.getText();
 				String nome= textNome.getText();
-				textMensagensRecebidas.append(nome + ": " + texto);
+				textMensagensRecebidas.append(nome + ": " + texto + "\n");
 				textEnviarMensagem.setText("");
 
 			}
 		});
-		btnEnviarMensagem.setBounds(254, 403, 117, 29);
+		btnEnviarMensagem.setBounds(302, 401, 117, 29);
 		getContentPane().add(btnEnviarMensagem);
+		
+		JLabel LbNome = new JLabel("Nome:");
+		LbNome.setBounds(22, 39, 46, 14);
+		getContentPane().add(LbNome);
 
 	}
 	
@@ -165,16 +169,24 @@ public class ClienteView extends JFrame {
 		}
 		
 	}
+	
 	private void connect (ChatMessage message) {
 		if(message.getText().equals("NO")) {
 			textNome.setText("");
 			JOptionPane.showMessageDialog(this, "Conexao nao realizada");
+			return;
 		}
-		textMensagensRecebidas.append(message.getName()+ "\n");
-
+		textMensagensRecebidas.append("Usuario " + message.getName() + " se conectou\n");
 	}
+	
 	private void disconnect (ChatMessage message) {
-		
+		/*try {
+			socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		textMensagensRecebidas.append("Usuario " + message.getName() + " se desconectou\n");
 	}
 	private void refreshOnlines (ChatMessage message) {
 		
