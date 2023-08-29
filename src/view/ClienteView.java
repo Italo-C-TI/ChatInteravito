@@ -27,6 +27,8 @@ public class ClienteView extends JFrame {
 	private JTextField textNome;
 	private JTextArea textEnviarMensagem;
 	private JButton btnConectar;
+	private String nome;
+
 
 	public ClienteView() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -46,7 +48,7 @@ public class ClienteView extends JFrame {
 		btnConectar = new JButton("Conectar");
 		btnConectar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String nome= textNome.getText();
+				nome= textNome.getText();
 				if(!nome.isEmpty()) {
 					message = new ChatMessage();
 					message.setAction(Action.CONNECT);
@@ -69,9 +71,11 @@ public class ClienteView extends JFrame {
 		JButton btnSair = new JButton("Sair");
 		btnSair.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				message = new ChatMessage();
 		        message.setAction(Action.DISCONNECT);
-		        service.sendAll(message);        		
-		        service.disconnect();
+		        message.setName(nome);
+		        service.sendAll(message);   
+		        nome="";
 			}
 		});
 		btnSair.setBounds(549, 4, 79, 28);
@@ -88,10 +92,9 @@ public class ClienteView extends JFrame {
 		        message.setAction(Action.SEND_ALL);
 		        String texto= textEnviarMensagem.getText();
 				message.setText(texto);
-				message.setName(textNome.getText());
+				message.setName(nome);
 				//System.out.println(message.getText());
 				service.sendAll(message);
-				//textEnviarMensagem.setText("");
 
 			}
 		});

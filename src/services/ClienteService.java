@@ -13,8 +13,8 @@ public class ClienteService {
 	
 	public Socket connect() {
 		try {
-			//this.conexao = new Socket("10.123.17.77", 5555);
-			this.conexao = new Socket("localhost", 5555);
+			this.conexao = new Socket("10.123.17.73", 5555);
+			//this.conexao = new Socket("localhost", 5555);
 			this.output = new ObjectOutputStream(conexao.getOutputStream());
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
