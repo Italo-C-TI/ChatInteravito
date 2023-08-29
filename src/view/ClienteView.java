@@ -59,7 +59,7 @@ public class ClienteView extends JFrame {
 						thread = new Thread(new ListenerSocket(socket)); 
 						thread.start();
 					}
-					service.send(message);
+					service.sendAll(message);
 				}
 			}
 		});
@@ -70,7 +70,7 @@ public class ClienteView extends JFrame {
 		btnSair.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 		        message.setAction(Action.DISCONNECT);
-		        service.send(message);        		
+		        service.sendAll(message);        		
 		        service.disconnect();
 			}
 		});
@@ -84,11 +84,14 @@ public class ClienteView extends JFrame {
 		JButton btnEnviarMensagem = new JButton("Enviar");
 		btnEnviarMensagem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				message = new ChatMessage();
 		        message.setAction(Action.SEND_ALL);
-				String texto= textEnviarMensagem.getText();
+		        String texto= textEnviarMensagem.getText();
 				message.setText(texto);
-				service.send(message);
-				textEnviarMensagem.setText("");
+				message.setName(textNome.getText());
+				//System.out.println(message.getText());
+				service.sendAll(message);
+				//textEnviarMensagem.setText("");
 
 			}
 		});
@@ -128,7 +131,7 @@ public class ClienteView extends JFrame {
 	                } else if (action.equals(Action.DISCONNECT)) {
 	                    disconnect(message);
 	                }else if (action.equals(Action.SEND_ALL)) {
-	                    updateChatArea(message);
+	                    send(message);
 	                }
 	            }
 	        } catch (Exception e) {
@@ -144,16 +147,21 @@ public class ClienteView extends JFrame {
 	        return;
 	    }
 	    message.setAction(Action.USER_ONLINE);
-	    service.send(message);
+	    service.sendAll(message);
 	}
 
 	private void disconnect(ChatMessage message) {
 	    message.setAction(Action.DISCONNECT);
-	    service.send(message);
+	    service.sendAll(message);
 	}
 
+	private void send(ChatMessage message) {
+	    message.setAction(Action.SEND_ALL);
+	    service.sendAll(message);
+	}
+	
 
 	private void updateChatArea(ChatMessage message) {
-		service.send(message);
+		service.sendAll(message);
 	}
 }
