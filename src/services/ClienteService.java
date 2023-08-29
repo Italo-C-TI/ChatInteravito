@@ -38,7 +38,6 @@ public class ClienteService {
 	
 	public void send(ChatMessage message) {
 		try {
-			//System.out.println(message.getName());
 			output.writeObject(message);
 		} catch (IOException e) {
 			e.printStackTrace();

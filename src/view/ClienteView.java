@@ -1,7 +1,5 @@
 package view;
 
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -35,6 +33,7 @@ public class ClienteView extends JFrame {
 	private JTextArea textMensagensRecebidas;
 	private JTextArea textEnviarMensagem;
 	private JButton btnConectar;
+	private JList<String> listOnlines;
 
 	public ClienteView() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -56,13 +55,18 @@ public class ClienteView extends JFrame {
 		JButton btnAtualizarOnlines = new JButton("Atualizar");
 		btnAtualizarOnlines.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+			       if (socket != null) {
+			            ChatMessage request = new ChatMessage();
+			            request.setAction(Action.USER_ONLINE);
+			            service.send(request);
+			        }
 			}
 		});
 		btnAtualizarOnlines.setBounds(28, 351, 117, 29);
 		panel.add(btnAtualizarOnlines);
 		
 		
-		JList listOnlines = new JList();
+		listOnlines = new JList<>();
 		listOnlines.setBounds(6, 30, 163, 284);
 		panel.add(listOnlines);
 		
@@ -135,60 +139,63 @@ public class ClienteView extends JFrame {
 	}
 	
 	private class ListenerSocket implements Runnable {
-		private ObjectInputStream input;
-		
-		public ListenerSocket(Socket socket) {
-			try {
-				this.input = new ObjectInputStream(socket.getInputStream());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		@Override
-		public void run() {
-			ChatMessage message = null;
-			try {
-				service = new ClienteService();
-				socket = service.connect();
-				
-				while ((message = (ChatMessage)input.readObject()) != null) {
-					Action action = message.getAction();
-					
-					if(action.equals(Action.CONNECT)){
-						connect(message);
-					}else if(action.equals(Action.DISCONNECT)){
-						disconnect(message);						
-					}else if(action.equals(Action.USER_ONLINE)){
-						refreshOnlines(message);
-					}
-				}
-			} catch (Exception e) {
-		        System.out.println("Exception: " + e);
-			}
-		}
-		
+	    private ObjectInputStream input;
+
+	    public ListenerSocket(Socket socket) {
+	        try {
+	            this.input = new ObjectInputStream(socket.getInputStream());
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    @Override
+	    public void run() {
+	        ChatMessage message = null;
+	        try {
+	            while ((message = (ChatMessage) input.readObject()) != null) {
+	                Action action = message.getAction();
+
+	                if (action.equals(Action.CONNECT)) {
+	                    connect(message);
+	                } else if (action.equals(Action.DISCONNECT)) {
+	                    disconnect(message);
+	                } else if (action.equals(Action.USER_ONLINE)) {
+	                    refreshOnlines(message);
+	                } else if (action.equals(Action.SEND_ALL)) {
+	                    updateChatArea(message.getName() + ": " + message.getText() + "\n");
+	                }
+	            }
+	        } catch (Exception e) {
+	            System.out.println("Exception: " + e);
+	        }
+	    }
 	}
-	
-	private void connect (ChatMessage message) {
-		if(message.getText().equals("NO")) {
-			textNome.setText("");
-			JOptionPane.showMessageDialog(this, "Conexao nao realizada");
-			return;
-		}
-		textMensagensRecebidas.append("Usuario " + message.getName() + " se conectou\n");
+
+	private void connect(ChatMessage message) {
+	    if (message.getText().equals("NO")) {
+	        textNome.setText("");
+	        JOptionPane.showMessageDialog(this, "Conexão não realizada");
+	        return;
+	    }
+	    textMensagensRecebidas.append("Usuário " + message.getName() + " se conectou\n");
+	    message.setAction(Action.USER_ONLINE);
+	    service.send(message);
 	}
-	
-	private void disconnect (ChatMessage message) {
-		/*try {
-			socket.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		textMensagensRecebidas.append("Usuario " + message.getName() + " se desconectou\n");
+
+	private void disconnect(ChatMessage message) {
+	    textMensagensRecebidas.append("Usuário " + message.getName() + " se desconectou\n");
+	    message.setAction(Action.DISCONNECT);
+	    service.send(message);
 	}
-	private void refreshOnlines (ChatMessage message) {
-		
+
+	private void refreshOnlines(ChatMessage message) {
+	    String[] users = message.getSetOnlines().toArray(new String[0]);
+	    listOnlines.setListData(users);
 	}
+
+	private void updateChatArea(String message) {
+	    textMensagensRecebidas.append(message);
+	}
+
 }

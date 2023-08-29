@@ -7,6 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import core.ChatMessage;
 import core.ChatMessage.Action;;
@@ -57,10 +58,14 @@ public class servidorService {
 					Action action = message.getAction();
 					
 					if(action.equals(Action.CONNECT)){
+						boolean isConnect = connect(message, output);
+						if(isConnect) {
+							mapOnlines.put(message.getName(), output);
+
+						}
 						connect(message, output); 
-						mapOnlines.put(message.getName(), output);
 						
-						System.out.println("Um novo usuario se conectou");
+						System.out.println(message.getName() + " se conectou");
 						
 					}else if(action.equals(Action.DISCONNECT)){
 						disconnect(message,output);
@@ -69,7 +74,7 @@ public class servidorService {
 						sendAll(message, output);
 						
 					}else if(action.equals(Action.USER_ONLINE)){
-						
+						refreshOnlines(message); 
 					}
 				}
 			} catch (Exception e) {
@@ -81,46 +86,46 @@ public class servidorService {
 	}
 	
 	private boolean connect(ChatMessage message, ObjectOutputStream output) {
-		if(mapOnlines.size() == 0) {
-			message.setText("YES");
-			sendAll(message, output);
-			return true;
-		}
-		if(mapOnlines.containsKey(message.getName())) {
-			message.setText("NO");
-			sendAll(message, output);
-	        return false;
-		} else {
-	        message.setText("YES");
-	        sendAll(message, output);
-	        return true;
-		}
-	}
-	
-	private void disconnect(ChatMessage message, ObjectOutputStream output) {
-		
-		mapOnlines.remove(message.getName());
-		
-		sendAll(message, output);
-	}
-	
-	private void sendAll(ChatMessage message, ObjectOutputStream output) {
-		for(Map.Entry<String, ObjectOutputStream>kv:mapOnlines.entrySet()) {
-			if (!kv.getKey().equals(message.getName())) {
-				try {
-					kv.getValue().writeObject(message);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-		
-		/*try {
-			output.writeObject(message);
-		} catch (Exception e) {
-	        System.out.println("Exception: " + e);
-		}*/
+	    message.setAction(Action.CONNECT);
+	    sendAll(message, output);
 
+	    return true;
 	}
+
+	private void disconnect(ChatMessage message, ObjectOutputStream output) {
+	    mapOnlines.remove(message.getName());
+	    sendAll(message, output);
+	    message.setAction(Action.DISCONNECT);
+	    sendAll(message, output);
+	}
+
+	private void sendAll(ChatMessage message, ObjectOutputStream output) {
+	    for (Map.Entry<String, ObjectOutputStream> kv : mapOnlines.entrySet()) {
+	        try {
+	            kv.getValue().writeObject(message);
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
+	
+	private void sendToOne(ChatMessage message, ObjectOutputStream output) {
+	    try {
+	        output.writeObject(message);
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+	}
+	
+	private void refreshOnlines(ChatMessage message) {
+	    String requesterName = message.getName();
+	    ObjectOutputStream requesterOutput = mapOnlines.get(requesterName);
+
+	    if (requesterOutput != null) {
+	        Set<String> users = mapOnlines.keySet();
+	        message.setSetOnlines(users);
+	        sendToOne(message, requesterOutput);
+	    }
+	}
+
 }
